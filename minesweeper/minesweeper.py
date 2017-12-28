@@ -11,21 +11,18 @@ class Board(object):
     This class holds the functions for generating and displaying a minesweeper
     board, but not the full game.
     """
-    def __init__(self, mines = 10, size = (10,10)):
+    def __init__(self, mines = 10, size = (10,10), show = False):
         # extract the size for use later
         self.size_x = size[0]
         self.size_y = size[1]
 
-        # save the number of bombs
+        # save the number of mines
         self.mine_count = mines
 
-        # initialize a board to hold the square numbers
-        self.number_board = [[0 for _ in range(self.size_x)]
-                                                    for _ in range(self.size_y)]
         # Set the bomb locations
-        self.set_mines()
-        self.set_numbers()
-        self.display_hidden()
+        self.generate_board()
+        if show == True:
+            self.display_hidden()
 
     def set_mines(self):
         """
@@ -90,6 +87,16 @@ class Board(object):
                     res.append((x + i, y + j))
         return res
 
+    def generate_board(self):
+        """
+        Call this to generate the board
+        """
+        # initialize a board to hold the square numbers
+        self.number_board = [[0 for _ in range(self.size_x)]
+                                                    for _ in range(self.size_y)]
+        self.set_mines()
+        self.set_numbers()
+
     def display_hidden(self):
         """
         Print the full board with numbers and all, includes gridlines for ease
@@ -100,8 +107,64 @@ class Board(object):
             print ' | '.join([str(x) if x >= 0 else 'M' for x in row ])
             if i != len(self.number_board)-1:
                 print '--|' + '---|' * (self.size_x - 2) + '--'
+
+class Game(Board):
+    """
+    Game class inherits from board to allow for use of the board generation
+    functions. Also adds input reading, board updating, and game running
+    functionality.
+    """
+    def __init__(self, difficulty = 'E'):
+        if difficulty == 'E':
+            self.size_x = 10
+            self.size_y = 10
+            self.mine_count = 10
+
+        self.revealed = [[0 for _ in range(self.size_x)]
+                                                    for _ in range(self.size_y)]
+
+        self.generate_board() # generate the underlying board
+        self.display_hidden()
+
+        self.read_move()
+
+        self.display()
+
+    def read_move(self):
+        """
+        Read a move into an x y pair, with a flag add or remove option if
+        necessary.
+        """
+        move = raw_input('Enter your move in format x y: ')
+        x, y = [int(x) for x in move.split()]
+        self.revealed[y][x] = 1
+
+    def run(self):
+        pass
+
+    def display(self):
+        """
+        Display the non hidden items of the board, this is what the player
+        should see as they reveal squares.
+        """
+        for i, row in enumerate(self.number_board):
+            display = []
+            for j, item in enumerate(row):
+                if self.revealed[j][i] == 1:
+                    if item >= 0:
+                        display.append(str(item))
+                    else:
+                        display.append('M')
+                elif self.revealed == 2:
+                    display.append('F')
+                else:
+                    display.append(' ')
+            print ' | '.join(display)
+            if i != len(self.number_board)-1:
+                print '--|' + '---|' * (self.size_x - 2) + '--'
+
 def main():
-    Board()
+    game = Game()
 
 
 if __name__ == '__main__':
