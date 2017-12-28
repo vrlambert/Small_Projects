@@ -63,11 +63,10 @@ class Board(object):
         return res
 
     def display_hidden(self):
-        for row in self.mine_board:
-            print row
-        print '-------------'
-        for row in self.number_board:
-            print row
+        for i, row in enumerate(self.number_board):
+            print ' | '.join([str(x) if x >= 0 else 'M' for x in row ])
+            if i != len(self.number_board)-1:
+                print '--|' + '---|' * (self.size_x - 2) + '--'
 def main():
     Board()
 
