@@ -15,9 +15,6 @@ class Board(object):
         # save the number of bombs
         self.mine_count = mines
 
-        # initialize a zero array for holding the bomb locations
-        self.mine_board = [[0 for _ in range(self.size_x)]
-                                                    for _ in range(self.size_y)]
         # initialize a board to hold the square numbers
         self.number_board = [[0 for _ in range(self.size_x)]
                                                     for _ in range(self.size_y)]
@@ -34,17 +31,15 @@ class Board(object):
         while mines < self.mine_count:
             rand_x = random.randint(0, self.size_x - 1)
             rand_y = random.randint(0, self.size_y - 1)
-            if self.mine_board[rand_y][rand_x] != 1:
+            if self.number_board[rand_y][rand_x] != -1:
                 # 1 in the bomb board means bomb
-                self.mine_board[rand_y][rand_x] = 1
-                # -1 in number board means bomb
                 self.number_board[rand_y][rand_x] = -1
                 mines += 1
 
     def set_numbers(self):
-        for j, row in enumerate(self.mine_board):
-            for i, bomb in enumerate(row):
-                if bomb == 1:
+        for j, row in enumerate(self.number_board):
+            for i, value in enumerate(row):
+                if value == -1:
                     for neighbor in self.get_neighbors((i, j)):
                         n_x, n_y = neighbor
                         if self.number_board[n_y][n_x] >= 0:
