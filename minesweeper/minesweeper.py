@@ -170,9 +170,8 @@ Enter here:""")
                 return
             elif self.number_board[y][x] == -1:
                 print 'BOOM'
-                self.revealed[y][x] = 1
                 return False
-                
+
             elif self.revealed[y][x] == 1:
                 print 'Already chose that cell'
                 self.read_move()
@@ -190,12 +189,20 @@ Enter here:""")
         elif m == 'cheat' and x == 9 and y == 9:
             self.display_hidden()
 
+    def reveal_mines(self):
+        """Called when the game is lost, reveals all the mines only"""
+        for j, row in enumerate(self.number_board):
+            for i, item in enumerate(row):
+                if item == -1:
+                    self.revealed[j][i] = 1
+
     def run(self):
         while True:
             self.display()
             move = self.read_move()
             state = self.update(move)
             if state == False:
+                self.reveal_mines()
                 self.display()
                 print 'OH NO, YOU LOSE'
                 print 'BOOM'
