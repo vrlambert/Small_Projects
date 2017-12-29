@@ -122,6 +122,10 @@ class Game(Board):
             self.size_y = 10
             self.mine_count = 10
 
+        # Reveal count decreases until all non mine cells are revealed
+        # Then you win the game
+        self.reveal_count = self.size_x * self.size_y - self.mine_count
+
         # Initialize a 2D list to show which cells have been revealed
         self.revealed = [[0 for _ in range(self.size_x)]
                                                     for _ in range(self.size_y)]
@@ -206,6 +210,7 @@ Enter here:""")
             # Otherwise, reveal the chosen cell
             else:
                 self.revealed[y][x] = 1
+                self.reveal_count -= 1
                 if self.number_board[y][x] == 0:
                     self.reveal_zeros((x, y))
 
@@ -234,13 +239,18 @@ Enter here:""")
         # cheat is cheating, it shows the whole board
         elif m == 'cheat' and x == 9 and y == 9:
             self.display_hidden()
+        elif m == 'cheat' and x == 1 and y == 1:
+            self.reveal_mines(flag = True)
 
-    def reveal_mines(self):
+    def reveal_mines(self, flag = False):
         """Called when the game is lost, reveals all the mines only"""
         for j, row in enumerate(self.number_board):
             for i, item in enumerate(row):
                 if item == -1:
-                    self.revealed[j][i] = 1
+                    if flag is True:
+                        self.revealed[j][i] = 2
+                    else:
+                        self.revealed[j][i] = 1
 
     def reveal_zeros(self, location):
         """
@@ -252,16 +262,25 @@ Enter here:""")
         """
         visited =[]
         to_check = [location]
+
         while to_check:
+            # Take the last element in the queue
             current = to_check.pop()
+            # Mark it as visited
             visited.append(current)
+
             x, y = current
-            self.revealed[y][x] = 1
+
+            # Set it to revealed and drop the revealed counter
+            if self.revealed[y][x] == 0:
+                self.revealed[y][x] = 1
+                self.reveal_count -= 1
+
+            # Add the next elements if they are 0, not visited, and not in queue
             if self.number_board[y][x] == 0:
                 for neigh in self.get_neighbors(current):
-                    if neigh not in visited:
+                    if neigh not in visited and neigh not in to_check:
                         to_check.append(neigh)
-
 
     def run(self):
         """The main function of the Game. Loops continuously accepting a move
@@ -272,13 +291,19 @@ Enter here:""")
 
             # Get a new move
             state = self.new_move()
-
+            print self.reveal_count
             # If the state is False, a mine was clicked
             if state == False:
                 self.reveal_mines()
                 self.display()
                 print 'OH NO, YOU LOSE'
                 print 'BOOM'
+                break
+            elif self.reveal_count == 0:
+                self.reveal_mines()
+                self.display()
+                print 'YOU WIN'
+                print '8)'
                 break
 
     def display(self):
