@@ -128,7 +128,6 @@ class Game(Board):
         initial  = self.read_move()
         _, init_x, init_y = initial
         while self.number_board[init_y][init_x] == -1:
-            print 'regenerating'
             self.generate_board()
 
         self.update(initial)
@@ -168,7 +167,6 @@ Enter here:""")
                 self.read_move()
                 return
             elif self.number_board[y][x] == -1:
-                print 'BOOM'
                 return False
 
             elif self.revealed[y][x] == 1:
@@ -176,7 +174,6 @@ Enter here:""")
                 self.read_move()
                 return
             else:
-                print x, y, 'revealed'
                 self.revealed[y][x] = 1
 
         elif m == 'f':
