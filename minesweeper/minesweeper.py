@@ -206,6 +206,8 @@ Enter here:""")
             # Otherwise, reveal the chosen cell
             else:
                 self.revealed[y][x] = 1
+                if self.number_board[y][x] == 0:
+                    self.reveal_zeros((x, y))
 
         # If the move is flag, flag the target
         elif m == 'f':
@@ -239,6 +241,27 @@ Enter here:""")
             for i, item in enumerate(row):
                 if item == -1:
                     self.revealed[j][i] = 1
+
+    def reveal_zeros(self, location):
+        """
+        Called when a zero is clicked. Reveals all adjacent zeros and their
+        adjacent numbers. This just removes the boring part of the game where
+        zeros can be clicked without any thought.
+
+        Runs using a depth first search.
+        """
+        visited =[]
+        to_check = [location]
+        while to_check:
+            current = to_check.pop()
+            visited.append(current)
+            x, y = current
+            self.revealed[y][x] = 1
+            if self.number_board[y][x] == 0:
+                for neigh in self.get_neighbors(current):
+                    if neigh not in visited:
+                        to_check.append(neigh)
+
 
     def run(self):
         """The main function of the Game. Loops continuously accepting a move
