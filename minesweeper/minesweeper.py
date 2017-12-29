@@ -133,22 +133,15 @@ class Game(Board):
 
         self.update(initial)
 
-        # self.display_hidden() # DELETE THIS LATER
-        #
-        # move = self.read_move()
-        # self.update(initial)
-
-        # self.display()
-
     def read_move(self):
         """
         Read a move into an x y pair, with a flag add or remove option if
         necessary.
         """
-        move = raw_input("""Enter your move in format m x y. \n
-m is the type of move, c for click, f for flag,
-r for remove flag. \n x and y should be numbers.
-                            \n Enter here:""")
+        move = raw_input("""Enter your move in format m x y.
+m is the type of move, c for click, f for flag, r for remove flag.
+x and y should be numbers.
+Enter here:""")
         m, x_str, y_str = move.split()
         try:
             x = int(x_str)
@@ -171,15 +164,19 @@ r for remove flag. \n x and y should be numbers.
         """
         m, x, y = move
         if m == 'c':
-            if self.revealed[y][x] == 1:
-                print 'Already chose that cell'
-                self.read_move()
-                return
-            elif self.revealed[y][x] == 2:
+            if self.revealed[y][x] == 2:
                 print 'That cell is flagged, choose again or unflag with r'
                 self.read_move()
                 return
+            elif self.number_board[y][x] == -1:
+                return False
+
+            elif self.revealed[y][x] == 1:
+                print 'Already chose that cell'
+                self.read_move()
+                return
             self.revealed[y][x] = 1
+
         elif m == 'f':
             self.revealed[y][x] = 2
             print 'ok'
@@ -190,7 +187,11 @@ r for remove flag. \n x and y should be numbers.
         while True:
             self.display()
             move = self.read_move()
-            self.update(move)
+            state = self.update(move)
+            if state == 'False':
+                print 'OH NO, YOU LOSE'
+                print 'BOOM'
+                break
 
     def display(self):
         """
