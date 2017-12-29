@@ -140,6 +140,15 @@ class Game(Board):
         # Process the first move
         self.update(initial)
 
+    def new_move(self):
+        """
+        Gets a new move. This function helps when a repeat move is needed,
+        this function can be called to restart the process.
+        """
+        move = self.read_move()
+        result = self.update(move)
+        return result
+
     def read_move(self):
         """
         Read a move into an x y pair, with a flag add or remove option if
@@ -180,9 +189,9 @@ Enter here:""")
         if m == 'c':
             # If it's flagged, warn them and accept another move
             if self.revealed[y][x] == 2:
+                self.display()
                 print 'That cell is flagged, choose again or unflag with r'
-                self.read_move()
-                return
+                return self.new_move()
 
             # If it's a bomb, return and lose the game
             elif self.number_board[y][x] == -1:
@@ -190,20 +199,35 @@ Enter here:""")
 
             # If it's already revealed, try again
             elif self.revealed[y][x] == 1:
+                self.display()
                 print 'Already chose that cell'
-                self.read_move()
-                return
+                return self.new_move()
 
             # Otherwise, reveal the chosen cell
             else:
                 self.revealed[y][x] = 1
+
         # If the move is flag, flag the target
         elif m == 'f':
-            self.revealed[y][x] = 2
-            print 'ok'
+            if self.revealed[y][x] == 1:
+                self.display()
+                print 'Cell already revealed, choose again'
+                return self.new_move()
+            # Otherwise, flag it
+            else:
+                self.revealed[y][x] = 2
+
         # If the move is remove flag, hide the cell
         elif m == 'r':
-            self.revealed[y][x] = 0
+            # if it's not a flag, skip
+            if self.revealed[y][x] != 2:
+                self.display()
+                print 'You did not choose a flag, make another move'
+                self.new_move()
+
+            # If it is a flag, remove
+            else:
+                self.revealed[y][x] = 0
 
         # cheat is cheating, it shows the whole board
         elif m == 'cheat' and x == 9 and y == 9:
@@ -223,11 +247,8 @@ Enter here:""")
             # Start by showing the board
             self.display()
 
-            # Read in the turns move
-            move = self.read_move()
-
-            # Update the board
-            state = self.update(move)
+            # Get a new move
+            state = self.new_move()
 
             # If the state is False, a mine was clicked
             if state == False:
