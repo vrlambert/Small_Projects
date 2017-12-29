@@ -148,14 +148,13 @@ Enter here:""")
             y = int(y_str)
         except:
             print 'invalid integers entered'
-            self.read_move()
-            return
+            return self.read_move()
 
         if m in ['c', 'f', 'r', 'cheat']:
             return (m, x, y)
         else:
             print 'invalid move entered'
-            self.read_move()
+            return self.read_move()
 
     def update(self, move):
         """
