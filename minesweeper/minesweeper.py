@@ -124,23 +124,73 @@ class Game(Board):
                                                     for _ in range(self.size_y)]
 
         self.generate_board() # generate the underlying board
-        self.display_hidden()
-
-        self.read_move()
-
         self.display()
+        initial  = self.read_move()
+        _, init_x, init_y = initial
+        while self.number_board[init_y][init_x] == -1:
+            print 'regenerating'
+            self.generate_board()
+
+        self.update(initial)
+
+        # self.display_hidden() # DELETE THIS LATER
+        #
+        # move = self.read_move()
+        # self.update(initial)
+
+        # self.display()
 
     def read_move(self):
         """
         Read a move into an x y pair, with a flag add or remove option if
         necessary.
         """
-        move = raw_input('Enter your move in format x y: ')
-        x, y = [int(x) for x in move.split()]
-        self.revealed[y][x] = 1
+        move = raw_input("""Enter your move in format m x y. \n
+m is the type of move, c for click, f for flag,
+r for remove flag. \n x and y should be numbers.
+                            \n Enter here:""")
+        m, x_str, y_str = move.split()
+        try:
+            x = int(x_str)
+            y = int(y_str)
+        except:
+            print 'invalid integers entered'
+            self.read_move()
+            return
+
+        if m in ['c', 'f', 'r']:
+            return (m, x, y)
+        else:
+            print 'invalid move entered'
+            self.read_move()
+
+    def update(self, move):
+        """
+        Given a move, update the state of the game board based on the given
+        move.
+        """
+        m, x, y = move
+        if m == 'c':
+            if self.revealed[y][x] == 1:
+                print 'Already chose that cell'
+                self.read_move()
+                return
+            elif self.revealed[y][x] == 2:
+                print 'That cell is flagged, choose again or unflag with r'
+                self.read_move()
+                return
+            self.revealed[y][x] = 1
+        elif m == 'f':
+            self.revealed[y][x] = 2
+            print 'ok'
+        elif m == 'r':
+            self.revealed[y][x] = 0
 
     def run(self):
-        pass
+        while True:
+            self.display()
+            move = self.read_move()
+            self.update(move)
 
     def display(self):
         """
@@ -155,7 +205,7 @@ class Game(Board):
                         display.append(str(item))
                     else:
                         display.append('M')
-                elif self.revealed == 2:
+                elif self.revealed[j][i] == 2:
                     display.append('F')
                 else:
                     display.append(' ')
@@ -165,6 +215,7 @@ class Game(Board):
 
 def main():
     game = Game()
+    game.run()
 
 
 if __name__ == '__main__':
