@@ -142,7 +142,7 @@ class Game(Board):
 m is the type of move, c for click, f for flag, r for remove flag.
 x and y should be numbers.
 Enter here:""")
-        m, x_str, y_str = move.split()
+        m, x_str, y_str = move.split() # need to change this to avoid crashes
         try:
             x = int(x_str)
             y = int(y_str)
@@ -151,7 +151,7 @@ Enter here:""")
             self.read_move()
             return
 
-        if m in ['c', 'f', 'r']:
+        if m in ['c', 'f', 'r', 'cheat']:
             return (m, x, y)
         else:
             print 'invalid move entered'
@@ -169,13 +169,17 @@ Enter here:""")
                 self.read_move()
                 return
             elif self.number_board[y][x] == -1:
+                print 'BOOM'
+                self.revealed[y][x] = 1
                 return False
-
+                
             elif self.revealed[y][x] == 1:
                 print 'Already chose that cell'
                 self.read_move()
                 return
-            self.revealed[y][x] = 1
+            else:
+                print x, y, 'revealed'
+                self.revealed[y][x] = 1
 
         elif m == 'f':
             self.revealed[y][x] = 2
@@ -183,12 +187,16 @@ Enter here:""")
         elif m == 'r':
             self.revealed[y][x] = 0
 
+        elif m == 'cheat' and x == 9 and y == 9:
+            self.display_hidden()
+
     def run(self):
         while True:
             self.display()
             move = self.read_move()
             state = self.update(move)
-            if state == 'False':
+            if state == False:
+                self.display()
                 print 'OH NO, YOU LOSE'
                 print 'BOOM'
                 break
@@ -198,20 +206,20 @@ Enter here:""")
         Display the non hidden items of the board, this is what the player
         should see as they reveal squares.
         """
-        for i, row in enumerate(self.number_board):
-            display = []
-            for j, item in enumerate(row):
+        for j, row in enumerate(self.number_board):
+            to_show = []
+            for i, item in enumerate(row):
                 if self.revealed[j][i] == 1:
                     if item >= 0:
-                        display.append(str(item))
+                        to_show.append(str(item))
                     else:
-                        display.append('M')
+                        to_show.append('M')
                 elif self.revealed[j][i] == 2:
-                    display.append('F')
+                    to_show.append('F')
                 else:
-                    display.append(' ')
-            print ' | '.join(display)
-            if i != len(self.number_board)-1:
+                    to_show.append(' ')
+            print ' | '.join(to_show)
+            if j != len(self.number_board)-1:
                 print '--|' + '---|' * (self.size_x - 2) + '--'
 
 def main():
