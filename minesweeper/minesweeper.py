@@ -114,22 +114,30 @@ class Game(Board):
     functions. Also adds input reading, board updating, and game running
     functionality.
     """
+
     def __init__(self, difficulty = 'E'):
+        # difficulty sets the size and number of bombs
         if difficulty == 'E':
             self.size_x = 10
             self.size_y = 10
             self.mine_count = 10
 
+        # Initialize a 2D list to show which cells have been revealed
         self.revealed = [[0 for _ in range(self.size_x)]
                                                     for _ in range(self.size_y)]
 
         self.generate_board() # generate the underlying board
-        self.display()
+        self.display() # Display the first board
+
+        # Accept the first move
         initial  = self.read_move()
         _, init_x, init_y = initial
+
+        # Check if the first move is a bomb, and regenerate until it isn't
         while self.number_board[init_y][init_x] == -1:
             self.generate_board()
 
+        # Process the first move
         self.update(initial)
 
     def read_move(self):
@@ -142,15 +150,22 @@ m is the type of move, c for click, f for flag, r for remove flag.
 x and y should be numbers.
 Enter here:""")
         m, x_str, y_str = move.split() # need to change this to avoid crashes
+
+        # Check if x an y are ints
         try:
             x = int(x_str)
             y = int(y_str)
+
+        # If they aren't try to read another move after a warning
         except:
             print 'invalid integers entered'
             return self.read_move()
 
+        # If the move is valid, return the move
         if m in ['c', 'f', 'r', 'cheat']:
             return (m, x, y)
+
+        # If the move isn't valid, get another move
         else:
             print 'invalid move entered'
             return self.read_move()
@@ -161,27 +176,36 @@ Enter here:""")
         move.
         """
         m, x, y = move
+        # If the move is a choice, process on
         if m == 'c':
+            # If it's flagged, warn them and accept another move
             if self.revealed[y][x] == 2:
                 print 'That cell is flagged, choose again or unflag with r'
                 self.read_move()
                 return
+
+            # If it's a bomb, return and lose the game
             elif self.number_board[y][x] == -1:
                 return False
 
+            # If it's already revealed, try again
             elif self.revealed[y][x] == 1:
                 print 'Already chose that cell'
                 self.read_move()
                 return
+
+            # Otherwise, reveal the chosen cell
             else:
                 self.revealed[y][x] = 1
-
+        # If the move is flag, flag the target
         elif m == 'f':
             self.revealed[y][x] = 2
             print 'ok'
+        # If the move is remove flag, hide the cell
         elif m == 'r':
             self.revealed[y][x] = 0
 
+        # cheat is cheating, it shows the whole board
         elif m == 'cheat' and x == 9 and y == 9:
             self.display_hidden()
 
@@ -193,10 +217,19 @@ Enter here:""")
                     self.revealed[j][i] = 1
 
     def run(self):
+        """The main function of the Game. Loops continuously accepting a move
+        each loop. The only time the loop ends is if you lose or if you win."""
         while True:
+            # Start by showing the board
             self.display()
+
+            # Read in the turns move
             move = self.read_move()
+
+            # Update the board
             state = self.update(move)
+
+            # If the state is False, a mine was clicked
             if state == False:
                 self.reveal_mines()
                 self.display()
@@ -209,19 +242,32 @@ Enter here:""")
         Display the non hidden items of the board, this is what the player
         should see as they reveal squares.
         """
+
         for j, row in enumerate(self.number_board):
+
+            # For each row, compile a list of symbols to show
             to_show = []
+
             for i, item in enumerate(row):
+                # If its revealed but not flagged, show a symbol
                 if self.revealed[j][i] == 1:
+                    # If it's greater than 0 it's a number, show it
                     if item >= 0:
                         to_show.append(str(item))
+                    # Otherwise it's a mine, display M
                     else:
                         to_show.append('M')
+                # If revealed is a 2, it's a flag
                 elif self.revealed[j][i] == 2:
                     to_show.append('F')
+                # Else it's hidden, show a blank
                 else:
                     to_show.append(' ')
+
+            # Combine all the to show with vertical grids
             print ' | '.join(to_show)
+
+            # Print a horizontal grid for all but the last line
             if j != len(self.number_board)-1:
                 print '--|' + '---|' * (self.size_x - 2) + '--'
 
