@@ -291,7 +291,7 @@ Enter here:""")
 
             # Get a new move
             state = self.new_move()
-            print self.reveal_count
+            
             # If the state is False, a mine was clicked
             if state == False:
                 self.reveal_mines()
